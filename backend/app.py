@@ -9,7 +9,7 @@ client = MongoClient(MONGO_URL)
 db = client.task_db
 
 @app.route('/')
-@app.route('/health')
+@app.route('/health-check')
 def health_check():
     return jsonify({"status": "healthy"}), 200
 
