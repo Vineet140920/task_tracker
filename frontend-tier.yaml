@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: ui-container
-        image: docker.io/<your-dockerhub-username>/task-tracker-frontend:latest
+        image: docker.io/vineet2026/task-tracker-frontend:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80

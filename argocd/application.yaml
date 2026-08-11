@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/<your-github-username>/<your-repo-name>.git
+    repoURL: https://github.com/Vineet140920/task_tracker.git
     targetRevision: main
     path: .
   destination:

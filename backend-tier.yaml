@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: api-container
-        image: docker.io/<your-dockerhub-username>/task-tracker-backend:latest
+        image: docker.io/vineet2026/task-tracker-backend:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
