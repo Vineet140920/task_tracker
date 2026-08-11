@@ -15,7 +15,7 @@ spec:
       containers:
       - name: api-container
         image: docker.io/vineet2026/task-tracker-backend:sha-3e8edaad806fa640565fde2206032f68bc7ab047
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         env:
