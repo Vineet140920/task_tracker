@@ -14,11 +14,15 @@ on:
       - '.github/workflows/ci.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   BACKEND_IMAGE: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/task-tracker-backend
   FRONTEND_IMAGE: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/task-tracker-frontend
   DB_IMAGE: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/task-tracker-db
+  IMAGE_TAG: sha-${{ github.sha }}
 
 jobs:
   build-and-push:
@@ -45,7 +49,7 @@ jobs:
           push: true
           tags: |
             ${{ env.BACKEND_IMAGE }}:latest
-            ${{ env.BACKEND_IMAGE }}:sha-${{ github.sha }}
+            ${{ env.BACKEND_IMAGE }}:${{ env.IMAGE_TAG }}
 
       - name: Build frontend image
         uses: docker/build-push-action@v5
@@ -55,7 +59,7 @@ jobs:
           push: true
           tags: |
             ${{ env.FRONTEND_IMAGE }}:latest
-            ${{ env.FRONTEND_IMAGE }}:sha-${{ github.sha }}
+            ${{ env.FRONTEND_IMAGE }}:${{ env.IMAGE_TAG }}
 
       - name: Build database image
         uses: docker/build-push-action@v5
@@ -65,4 +69,36 @@ jobs:
           push: true
           tags: |
             ${{ env.DB_IMAGE }}:latest
-            ${{ env.DB_IMAGE }}:sha-${{ github.sha }}
+            ${{ env.DB_IMAGE }}:${{ env.IMAGE_TAG }}
+
+      - name: Update manifest image tags
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          tag = "${{ env.IMAGE_TAG }}"
+          username = "${{ secrets.DOCKERHUB_USERNAME }}"
+          replacements = {
+              f"docker.io/{username}/task-tracker-backend:latest": f"docker.io/{username}/task-tracker-backend:{tag}",
+              f"docker.io/{username}/task-tracker-frontend:latest": f"docker.io/{username}/task-tracker-frontend:{tag}",
+              f"docker.io/{username}/task-tracker-db:latest": f"docker.io/{username}/task-tracker-db:{tag}",
+          }
+          for file_name in ["backend-tier.yaml", "database-tier.yaml", "frontend-tier.yaml"]:
+              path = Path(file_name)
+              text = path.read_text(encoding="utf-8")
+              updated = text
+              for old, new in replacements.items():
+                  updated = updated.replace(old, new)
+              path.write_text(updated, encoding="utf-8")
+          print(f"Updated manifests to tag: {tag}")
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend-tier.yaml frontend-tier.yaml database-tier.yaml
+
+          if git diff --cached --quiet; then
+            echo "No manifest change required"
+          else
+            git commit -m "Update Kubernetes image tags to ${{ env.IMAGE_TAG }}"
+            git push origin HEAD:main
+          fi

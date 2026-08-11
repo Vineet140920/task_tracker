@@ -97,6 +97,19 @@ kubectl get svc -A
 kubectl get ingress
 ```
 
+## End-to-end CI/CD flow
+
+This project follows a real CI/CD pattern:
+
+1. A push is made to the GitHub repo.
+2. GitHub Actions runs the CI pipeline.
+3. Docker images are built and pushed to Docker Hub with a commit-specific tag.
+4. The workflow updates the image tag in `backend-tier.yaml`, `database-tier.yaml`, and `frontend-tier.yaml`.
+5. Because the repo content changes, ArgoCD detects the update and automatically syncs the cluster.
+6. Kubernetes rolls out the new pod versions automatically.
+
+This is the flow that makes the demo behave like a real production deployment.
+
 ## Notes
 
 - This keeps the project simple and understandable for a demo/prototype.
