@@ -26,6 +26,7 @@ env:
 
 jobs:
   build-and-push:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
@@ -74,22 +75,34 @@ jobs:
       - name: Update manifest image tags
         run: |
           python - <<'PY'
+          import re
           from pathlib import Path
-          tag = "${{ env.IMAGE_TAG }}"
+
+          sha_tag = "${{ env.IMAGE_TAG }}"
           username = "${{ secrets.DOCKERHUB_USERNAME }}"
-          replacements = {
-              f"docker.io/{username}/task-tracker-backend:latest": f"docker.io/{username}/task-tracker-backend:{tag}",
-              f"docker.io/{username}/task-tracker-frontend:latest": f"docker.io/{username}/task-tracker-frontend:{tag}",
-              f"docker.io/{username}/task-tracker-db:latest": f"docker.io/{username}/task-tracker-db:{tag}",
+          desired = {
+              "task-tracker-backend": f"docker.io/{username}/task-tracker-backend:{sha_tag}",
+              "task-tracker-frontend": f"docker.io/{username}/task-tracker-frontend:{sha_tag}",
+              "task-tracker-db": f"docker.io/{username}/task-tracker-db:{sha_tag}",
           }
-          for file_name in ["backend-tier.yaml", "database-tier.yaml", "frontend-tier.yaml"]:
+
+          files = ["backend-tier.yaml", "database-tier.yaml", "frontend-tier.yaml"]
+          changed = False
+
+          for file_name in files:
               path = Path(file_name)
               text = path.read_text(encoding="utf-8")
-              updated = text
-              for old, new in replacements.items():
-                  updated = updated.replace(old, new)
-              path.write_text(updated, encoding="utf-8")
-          print(f"Updated manifests to tag: {tag}")
+              new_text = text
+              for image_name, replacement in desired.items():
+                  pattern = rf"docker\.io/[^\s\"]+/{re.escape(image_name)}:[A-Za-z0-9._-]+"
+                  new_text = re.sub(pattern, replacement, new_text)
+
+              if new_text != text:
+                  path.write_text(new_text, encoding="utf-8")
+                  changed = True
+
+          print(f"Updated manifests to tag: {sha_tag}")
+          print("Manifest changed" if changed else "No manifest change required")
           PY
 
           git config user.name "github-actions[bot]"
