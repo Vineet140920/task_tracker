@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Tracker</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 700px;
+            max-width: 90%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        .task {
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kubernetes 3-Tier Task Tracker</h1>
+        <div id="status">Connecting to Backend...</div>
+        <div id="task-list"></div>
+    </div>
+
+    <script>
+        fetch('/api/tasks')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('status').innerText = '✅ Connected to Backend';
+                const list = document.getElementById('task-list');
+                data.data.forEach(task => {
+                    const div = document.createElement('div');
+                    div.className = 'task';
+                    div.innerHTML = `<strong>${task.title}</strong> - ${task.status}`;
+                    list.appendChild(div);
+                });
+            })
+            .catch(err => {
+                document.getElementById('status').innerText = '❌ Backend Connection Failed';
+            });
+    </script>
+</body>
+</html>

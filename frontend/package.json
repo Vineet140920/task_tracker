@@ -1,0 +1,12 @@
+{
+  "name": "k8s-task-tracker-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "servor",
+    "build": "mkdir -p build && cp index.html build/"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "servor": "^4.0.0"
+  }
+}
