@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: ui-container
-        image: docker.io/vineet2026/task-tracker-frontend:sha-35eec7dd88e8f8fd1d5aba383281b8cf90ff89db
+        image: docker.io/vineet2026/task-tracker-frontend:sha-05c440a6fc1bd0577bcf3ea4a40f2ef7f69a8e22
         imagePullPolicy: Always
         ports:
         - containerPort: 80
