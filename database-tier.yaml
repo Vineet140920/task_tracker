@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
       - name: mongodb
-        image: docker.io/vineet2026/task-tracker-db:sha-05c440a6fc1bd0577bcf3ea4a40f2ef7f69a8e22
+        image: docker.io/vineet2026/task-tracker-db:sha-1fb859ab0ab04360eb5a49e9ba62ca53bd832cf6
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 27017
