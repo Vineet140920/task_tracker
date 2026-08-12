@@ -23,13 +23,13 @@ spec:
           value: mongodb://admin:mypassword123@mongodb-service:27017
         readinessProbe:
           httpGet:
-            path: /health-check
+            path: /health
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 10
         livenessProbe:
           httpGet:
-            path: /health-check
+            path: /health
             port: 8080
           initialDelaySeconds: 15
           periodSeconds: 20
